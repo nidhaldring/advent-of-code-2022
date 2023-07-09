@@ -40,11 +40,18 @@ func main() {
 		var quantity, index, dest int
 		fmt.Sscanf(sc.Text(), "move %d from %d to %d", &quantity, &index, &dest)
 
-		for quantity > 0 {
-			stacks[dest-1].push(stacks[index-1].pop())
-			quantity--
+		v := ""
+		for i := quantity - 1; i >= 0; i-- {
+			v += stacks[index-1].pop()
 		}
 
+		for i := len(v) - 1; i >= 0; i-- {
+			stacks[dest-1].push(string(v[i]))
+		}
+	}
+
+	for _, s := range stacks {
+		fmt.Println(s)
 	}
 
 	for _, stack := range stacks {

@@ -150,5 +150,4 @@ func main() {
 	} else if os.Args[1] == "2" {
 		part2(sc)
 	}
-
 }

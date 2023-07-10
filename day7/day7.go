@@ -30,7 +30,7 @@ type Elm struct {
 	elmType  string
 	parent   *Elm
 	children []*Elm
-	size     int
+	elmSize  int
 }
 
 func NewElm(name, elmType string, parent *Elm) *Elm {
@@ -50,7 +50,7 @@ func (e *Elm) HasChildren() int {
 }
 
 func (e *Elm) Size() int {
-	s := e.size
+	s := e.elmSize
 	for _, c := range e.children {
 		s += c.Size()
 	}
@@ -79,7 +79,7 @@ func buildTree(sc *bufio.Scanner) *Elm {
 			var size int
 			fmt.Sscanf(sc.Text(), "%d %s", &size, &filename)
 			newElm := NewElm(filename, FILE, p)
-			newElm.size = size
+			newElm.elmSize = size
 			p.AddChild(newElm)
 		}
 	}

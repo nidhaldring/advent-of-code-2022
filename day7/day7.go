@@ -57,12 +57,11 @@ func (e *Elm) Size() int {
 	return s
 }
 
-func part1(sc *bufio.Scanner) {
-
+func buildTree(sc *bufio.Scanner) *Elm {
 	root := NewElm("/", DIR, nil)
-	p := root
 
 	// skip first line
+	p := root
 	sc.Scan()
 	for sc.Scan() {
 		if strings.Index(sc.Text(), "$ cd") == 0 {
@@ -85,16 +84,21 @@ func part1(sc *bufio.Scanner) {
 		}
 	}
 
-	// calc
+	return root
+}
+
+func calcTopMaxSum(r *Elm) int {
 	var st stack
-	res := 0
-	st.push(root)
+	sum := 0
+
+	st.push(r)
+
 	for len(st) > 0 {
 		p := st.pop()
 
 		size := p.Size()
 		if p.elmType == DIR && p.name != "/" && size < 100000 {
-			res += size
+			sum += size
 		}
 
 		for _, child := range p.children {
@@ -102,11 +106,41 @@ func part1(sc *bufio.Scanner) {
 		}
 	}
 
-	fmt.Println(res)
+	return sum
+}
+
+func part1(sc *bufio.Scanner) {
+	root := buildTree(sc)
+	fmt.Println(calcTopMaxSum(root))
 
 }
 
 func part2(sc *bufio.Scanner) {
+	root := buildTree(sc)
+	totalUsedSize := root.Size()
+	freeSize := 70000000 - totalUsedSize
+	sizeToDelete := 30000000 - freeSize
+
+	var st stack
+	minElmName := "/"
+	minElmSize := root.Size()
+
+	st.push(root)
+
+	for len(st) > 0 {
+		p := st.pop()
+		for _, c := range p.children {
+			st.push(c)
+		}
+
+		size := p.Size()
+		if p.elmType == DIR && size >= sizeToDelete && size < minElmSize {
+			minElmName = p.name
+			minElmSize = size
+		}
+	}
+
+	fmt.Println(minElmName, minElmSize)
 }
 
 func main() {

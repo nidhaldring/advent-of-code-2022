@@ -48,8 +48,7 @@ func (m *Monkey) StartThrowing() int {
 	numOfInspection := 0
 	for !m.items.IsEmpty() {
 		numOfInspection++
-		top := m.items.Pop()
-		top = m.operation(top)
+		top := m.operation(m.items.Pop())
 		top = int(math.Round(float64(top / 3)))
 		if m.test(top) {
 			ml.GetMonkey(m.m1).items.Push(top)

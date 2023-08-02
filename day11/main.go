@@ -5,35 +5,36 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-type Stack []int
+type Queue []int
 
-func NewStack() Stack {
-	return Stack(make([]int, 0))
+func NewQueue() Queue {
+	return Queue(make([]int, 0))
 }
 
-func (s *Stack) Push(a int) {
-	*s = append(*s, a)
+func (q *Queue) Push(a int) {
+	*q = append(*q, a)
 }
 
-func (s *Stack) Pop() int {
-	tmp := (*s)[len(*s)-1]
-	*s = (*s)[:len(*s)-1]
+func (q *Queue) Pop() int {
+	tmp := (*q)[0]
+	*q = (*q)[1:]
 	return tmp
 }
 
-func (s *Stack) IsEmpty() bool {
-	return len(*s) == 0
+func (q *Queue) IsEmpty() bool {
+	return len(*q) == 0
 }
 
 type Op func(int) int
 type Test func(int) bool
 
 type Monkey struct {
-	items     Stack
+	items     Queue
 	operation Op
 	test      Test
 
@@ -42,38 +43,57 @@ type Monkey struct {
 	m2 int // index of 2nd monkey in the ml
 }
 
-func (m *Monkey) StartThrowing() {
+func (m *Monkey) StartThrowing() int {
 	ml := m.ml
+	numOfInspection := 0
 	for !m.items.IsEmpty() {
-		top := m.operation(m.items.Pop())
-		top = int(math.Round(float64(top) / 3))
+		numOfInspection++
+		top := m.items.Pop()
+		top = m.operation(top)
+		top = int(math.Round(float64(top / 3)))
 		if m.test(top) {
 			ml.GetMonkey(m.m1).items.Push(top)
 		} else {
 			ml.GetMonkey(m.m2).items.Push(top)
 		}
 	}
+
+	return numOfInspection
 }
 
-type MonkeysList struct {
-	monkeys []*Monkey
+// to help with debugging
+func (m *Monkey) String() string {
+	return fmt.Sprintf("items = %+v", m.items)
 }
 
-func NewMonkeyList() *MonkeysList {
-	return &MonkeysList{
-		monkeys: make([]*Monkey, 0),
-	}
+type MonkeysList []*Monkey
+
+func NewMonkeyList() MonkeysList {
+	return MonkeysList(make([]*Monkey, 0))
 }
 
 func (ml *MonkeysList) CreateNewMonkey() *Monkey {
 	m := &Monkey{}
 	m.ml = ml
-	ml.monkeys = append(ml.monkeys, m)
+	*ml = append(*ml, m)
 	return m
 }
 
-func (ml *MonkeysList) GetMonkey(index int) *Monkey {
-	return ml.monkeys[index-1]
+func (ml MonkeysList) GetMonkey(index int) *Monkey {
+	return ml[index]
+}
+
+func (ml *MonkeysList) StartRounds() {
+	numOfInspections := make([]int, len(*ml))
+	for round := 0; round < 20; round++ {
+		for i, m := range *ml {
+			numOfInspections[i] = m.StartThrowing() + numOfInspections[i]
+		}
+	}
+
+	sort.IntSlice(numOfInspections).Sort()
+	top2 := numOfInspections[len(*ml)-2:]
+	fmt.Println(top2[0] * top2[1])
 }
 
 func ApplyOperand(op string, x, y int) int {
@@ -90,13 +110,11 @@ func ApplyOperand(op string, x, y int) int {
 }
 
 func ParseStartingItems(line string) []int {
-	var items string
-	fmt.Sscanf(line, "Starting Items: %s\n", &items)
-
-	parsedItems := NewStack()
-	for _, item := range strings.Split(items, ",") {
+	items := line[strings.Index(line, ":")+2:]
+	parsedItems := make([]int, 0)
+	for _, item := range strings.Split(items, ", ") {
 		v, _ := strconv.Atoi(item)
-		parsedItems.Push(v)
+		parsedItems = append(parsedItems, v)
 	}
 	return parsedItems
 }
@@ -125,7 +143,7 @@ func ParseTest(line string) Test {
 
 }
 
-func ParseMonkeys(sc *bufio.Scanner) *MonkeysList {
+func ParseMonkeys(sc *bufio.Scanner) MonkeysList {
 	ml := NewMonkeyList()
 	var currentMonkey *Monkey
 	for sc.Scan() {
@@ -142,10 +160,10 @@ func ParseMonkeys(sc *bufio.Scanner) *MonkeysList {
 			var i int
 			fmt.Sscanf(line, "If true: throw to monkey %d\n", &i)
 			currentMonkey.m1 = i
-		} else if strings.Index(line, "Test") == 0 {
+		} else if strings.Index(line, "If false") == 0 {
 			var i int
 			fmt.Sscanf(line, "If false: throw to monkey %d\n", &i)
-			currentMonkey.m1 = i
+			currentMonkey.m2 = i
 		}
 
 	}
@@ -155,7 +173,7 @@ func ParseMonkeys(sc *bufio.Scanner) *MonkeysList {
 
 func part1(sc *bufio.Scanner) {
 	ml := ParseMonkeys(sc)
-	fmt.Println(ml)
+	ml.StartRounds()
 }
 
 func part2(sc *bufio.Scanner) {}

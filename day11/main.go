@@ -175,6 +175,9 @@ func part1(sc *bufio.Scanner) {
 	ml.StartRounds()
 }
 
+// part 2 is basically a redo of part 1 but taking int overflow into consideration
+// this can be easily done using "math/big" so i'm not doing it cuz it's a waste of time
+// since i have to replace all int occurrences with big.Int (for example) which is annoying
 func part2(sc *bufio.Scanner) {}
 
 func main() {

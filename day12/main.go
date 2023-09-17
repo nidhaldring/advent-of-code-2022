@@ -15,7 +15,6 @@ func findShortestPath(matrix [][]string, start, goal *PathPoint) int {
 	nodes.Push(start)
 	for !nodes.Empty() {
 		node := nodes.Pop()
-
 		neighbors := GetNeighbors(node, goal, matrix)
 		for _, n := range neighbors {
 			if n.x == goal.x && n.y == goal.y {

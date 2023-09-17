@@ -39,7 +39,7 @@ func GetNeighbors(n, goal *PathPoint, matrix [][]string) []*PathPoint {
 	return res
 }
 
-func ParseInput(sc *bufio.Scanner) ([][]string, *PathPoint, *PathPoint) {
+func ParsePart1Input(sc *bufio.Scanner) ([][]string, *PathPoint, *PathPoint) {
 	var start *PathPoint
 	var goal *PathPoint
 	var matrix [][]string
@@ -57,6 +57,31 @@ func ParseInput(sc *bufio.Scanner) ([][]string, *PathPoint, *PathPoint) {
 	}
 
 	return matrix, start, goal
+}
+
+func ParsePart2Input(sc *bufio.Scanner) ([][]string, []*PathPoint, *PathPoint) {
+	startPoints := make([]*PathPoint, 0)
+	var goal *PathPoint
+	var matrix [][]string
+	for line := 0; sc.Scan(); line++ {
+		startIndex := strings.Index(sc.Text(), "S")
+		if startIndex != -1 {
+			startPoints = append(startPoints, &PathPoint{x: line, y: startIndex})
+		}
+
+		startIndex = strings.Index(sc.Text(), "a")
+		if startIndex != -1 {
+			startPoints = append(startPoints, &PathPoint{x: line, y: startIndex})
+		}
+
+		goalIndex := strings.Index(sc.Text(), "E")
+		if goalIndex != -1 {
+			goal = &PathPoint{x: line, y: goalIndex}
+		}
+		matrix = append(matrix, strings.Split(sc.Text(), ""))
+	}
+
+	return matrix, startPoints, goal
 }
 
 func minus(a, b string) int {

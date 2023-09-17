@@ -5,8 +5,8 @@ type PathPoint struct {
 	parent *PathPoint
 }
 
-func (p *PathPoint) ConstructPath() *Stack {
-	path := NewStack()
+func (p *PathPoint) ConstructPath() *Queue {
+	path := NewQueue()
 	for p != nil {
 		path.Push(p)
 		p = p.parent

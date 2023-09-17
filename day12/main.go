@@ -10,20 +10,20 @@ func part1(sc *bufio.Scanner) {
 	matrix, start, goal := ParseInput(sc)
 
 	// start traversing the matrix searching for the least num of steps to reach E
-	nodes := NewStack()
-	visitedNodes := NewStack()
+	nodes := NewQueue()
+	visitedNodes := make(map[[2]int]bool)
+
 	nodes.Push(start)
-LOOP:
 	for !nodes.Empty() {
 		node := nodes.Pop()
-		visitedNodes.Push(node)
 
 		neighbors := GetNeighbors(node, goal, matrix)
 		for _, n := range neighbors {
 			if n.x == goal.x && n.y == goal.y {
 				n.ConstructPath().Reverse().PrintPath()
-				break LOOP
-			} else if !visitedNodes.Contains(n) {
+				break
+			} else if !visitedNodes[[2]int{n.x, n.y}] {
+				visitedNodes[[2]int{n.x, n.y}] = true
 				nodes.Push(n)
 			}
 		}
